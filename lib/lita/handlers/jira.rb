@@ -70,14 +70,15 @@ module Lita
         }
       )
 
-      route(
-        /^jira\spoint\s#{ISSUE_PATTERN}\sas\s#{POINTS_PATTERN}$/,
-        :point,
-        command: true,
-        help: {
-          t('help.point.syntax') => t('help.point.desc')
-        }
-      )
+      # At the moment this can crash the bot, so remove it until it is fixed.
+      #route(
+      #  /^jira\spoint\s#{ISSUE_PATTERN}\sas\s#{POINTS_PATTERN}$/,
+      #  :point,
+      #  command: true,
+      #  help: {
+      #    t('help.point.syntax') => t('help.point.desc')
+      #  }
+      #)
 
       # Detect ambient JIRA issues in non-command messages
       route AMBIENT_PATTERN, :ambient, command: false
