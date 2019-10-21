@@ -62,14 +62,14 @@ module JiraHelper
       issue = client.Issue.build
       description = "Submitted via chat by: [~#{user.mention_name}]\n\n" + description
       issue.save(
-        fields: { 
-          summary: summary,
-          description: description,
-          issuetype: { name: 'Story' },
-          project: { id: project.id }
+        {"fields"=>{
+          "summary"=>summary,
+          "description"=>description,
+          "issuetype"=>{ "name"=>"Story" },
+          "project" =>{ "id"=>project.id }
         }
-      )
-      issue.fetch
+      })
+      #issue.fetch
       issue
     end
 

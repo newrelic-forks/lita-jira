@@ -70,17 +70,30 @@ module Lita
         }
       )
 
-      route(
-        /^jira\spoint\s#{ISSUE_PATTERN}\sas\s#{POINTS_PATTERN}$/,
-        :point,
-        command: true,
-        help: {
-          t('help.point.syntax') => t('help.point.desc')
-        }
-      )
+      # At the moment this can crash the bot, so remove it until it is fixed.
+      #route(
+      #  /^jira\spoint\s#{ISSUE_PATTERN}\sas\s#{POINTS_PATTERN}$/,
+      #  :point,
+      #  command: true,
+      #  help: {
+      #    t('help.point.syntax') => t('help.point.desc')
+      #  }
+      #)
 
       # Detect ambient JIRA issues in non-command messages
       route AMBIENT_PATTERN, :ambient, command: false
+
+      def get_slack_api(api_call)
+        api_response = HTTParty.get(
+          "https://slack.com/api/#{api_call}?token=#{robot.config.adapters.slack.token}&pretty=0"
+        )
+        data = MultiJson.load(api_response.body)
+        if data["ok"] == true
+          return data
+        else
+          return {}
+        end
+      end
 
       def summary(response)
         issue = fetch_issue(response.match_data['issue'])
@@ -103,7 +116,14 @@ module Lita
       end
 
       def todo(response)
-        issue = create_issue(response.match_data['project'],
+        team_data = get_slack_api("team.info")
+        team_domain = team_data['team']['domain']
+        if team_domain == 'datanerd-staging'
+          project = 'TEST'
+        else
+          project = response.match_data['project']
+        end
+        issue = create_issue(project,
                              response.match_data['subject'],
                              response.match_data['summary'],
                              response.user)
